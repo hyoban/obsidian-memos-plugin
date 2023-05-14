@@ -3,7 +3,7 @@
 	"name": "Memos Sync",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "A plugin for Obsidian that allows you to sync your memos.",
+	"description": "Keep in sync with your memos",
 	"author": "hyoban",
 	"authorUrl": "https://hyoban.cc",
 	"isDesktopOnly": true
