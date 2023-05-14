@@ -5,8 +5,8 @@ on:
     tags:
       - "*"
 
-env:
-  PLUGIN_NAME: ${{ github.event.repository.name }}
+permissions:
+  contents: write
 
 jobs:
   build:
