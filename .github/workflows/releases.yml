@@ -21,6 +21,7 @@ jobs:
       - name: Build
         id: build
         run: |
+          corepack enable
           pnpm install
           pnpm run build
           mkdir ${{ env.PLUGIN_NAME }}
