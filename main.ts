@@ -4,14 +4,12 @@ import { App, Notice, Plugin, PluginSettingTab, Setting } from "obsidian"
 interface MemosSyncPluginSettings {
 	openAPI: string
 	folderToSync: string
-	debug: boolean
 	lastSyncTime?: number
 }
 
 const DEFAULT_SETTINGS: MemosSyncPluginSettings = {
 	openAPI: "",
 	folderToSync: "Memos Sync",
-	debug: false,
 }
 
 export default class MemosSyncPlugin extends Plugin {
@@ -34,32 +32,19 @@ export default class MemosSyncPlugin extends Plugin {
 		await this.saveData(this.settings)
 	}
 
-	async debug(message: string) {
-		if (this.settings.debug) {
-			new Notice(message, 0)
-		}
-	}
-
-	async log(message: string, duration?: number) {
-		new Notice(message, duration)
-	}
-
 	async sync() {
 		await this.loadSettings()
 		const { openAPI, folderToSync, lastSyncTime } = this.settings
 
 		if (openAPI === "") {
-			this.log("Please enter your OpenAPI key.")
+			new Notice("Please enter your OpenAPI key.")
 			return
 		}
 
 		try {
-			this.log("Start syncing memos.")
+			new Notice("Start syncing memos.")
 
 			const res = await fetchMemosWithResource(openAPI)
-			this.debug(
-				`Fetch memos from API successfully. Total: ${res.memos.length}`
-			)
 
 			const vault = this.app.vault
 			const adapter = this.app.vault.adapter
@@ -67,14 +52,12 @@ export default class MemosSyncPlugin extends Plugin {
 			const isMemosFolderExists = await adapter.exists(`${folderToSync}/memos`)
 			if (!isMemosFolderExists) {
 				await vault.createFolder(`${folderToSync}/memos`)
-				this.debug("Created memos folder.")
 			}
 			const isResourcesFolderExists = await adapter.exists(
 				`${folderToSync}/resources`
 			)
 			if (!isResourcesFolderExists) {
 				await vault.createFolder(`${folderToSync}/resources`)
-				this.debug("Created resources folder.")
 			}
 
 			res.memos.forEach((memo) => {
@@ -83,15 +66,9 @@ export default class MemosSyncPlugin extends Plugin {
 				const lastUpdated = memo.updatedTs
 
 				if (lastSyncTime && lastUpdated * 1000 < lastSyncTime) {
-					this.debug(
-						`Skip memo ${memo.id}, because ${
-							lastUpdated * 1000
-						} < ${lastSyncTime}`
-					)
 					return
 				}
 				adapter.write(memoPath, memoContent)
-				this.debug(`Synced memo: ${memo.id}`)
 			})
 
 			res.resources.forEach(async (resource) => {
@@ -104,7 +81,6 @@ export default class MemosSyncPlugin extends Plugin {
 
 				const resourceContent = resource.content
 				adapter.writeBinary(resourcePath, resourceContent)
-				this.debug(`Synced resource: ${resource.filename}`)
 			})
 
 			// delete memos and resources that are not in the API response
@@ -119,7 +95,6 @@ export default class MemosSyncPlugin extends Plugin {
 			memosInVault.files.forEach(async (memo) => {
 				if (!memosInAPI.includes(memo)) {
 					await adapter.remove(memo)
-					this.debug(`Deleted memo: ${memo}`)
 				}
 			})
 
@@ -127,18 +102,17 @@ export default class MemosSyncPlugin extends Plugin {
 			resourcesInVault.files.forEach(async (resource) => {
 				if (!resourcesInAPI.includes(resource)) {
 					await adapter.remove(resource)
-					this.debug(`Deleted resource: ${resource}`)
 				}
 			})
 
-			this.log(`Sync memos successfully.`)
+			new Notice(`Sync memos successfully.`)
 
 			this.saveData({
 				...this.settings,
 				lastSyncTime: Date.now(),
 			})
 		} catch (e) {
-			this.log(
+			new Notice(
 				"Failed to sync memos. Please check your OpenAPI key and network.",
 				0
 			)
@@ -191,16 +165,6 @@ class MemosSyncSettingTab extends PluginSettingTab {
 						this.plugin.settings.folderToSync = value
 						await this.plugin.saveSettings()
 					})
-			)
-
-		new Setting(containerEl)
-			.setName("Debug")
-			.setDesc("Enable debug mode.")
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.debug).onChange(async (value) => {
-					this.plugin.settings.debug = value
-					await this.plugin.saveSettings()
-				})
 			)
 	}
 }
