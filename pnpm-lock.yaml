@@ -1,5 +1,10 @@
 lockfileVersion: '6.0'
 
+dependencies:
+  kirika:
+    specifier: ^0.0.1
+    version: 0.0.1
+
 devDependencies:
   '@types/node':
     specifier: ^16.11.6
@@ -955,6 +960,10 @@ packages:
   /json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
     dev: true
+
+  /kirika@0.0.1:
+    resolution: {integrity: sha512-rliSr2ZYfkMkYECVmczWIM1YRc911aBawa/z+sazx6Oz6YVpXqFbZ9Lhm11ugZmuOLBTH0Ch6lZhsUESNlCK/g==}
+    dev: false
 
   /levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
