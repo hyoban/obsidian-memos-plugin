@@ -138,13 +138,12 @@ class MemosSyncSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("OpenAPI")
-			.setDesc("Find your OpenAPI key at your memos settings.")
+			.setDesc("Find your OpenAPI key at your Memos Settings.")
 			.addText((text) =>
 				text
 					.setPlaceholder("Enter your OpenAPI key")
 					.setValue(this.plugin.settings.openAPI)
 					.onChange(async (value) => {
-						console.log("Secret: " + value)
 						this.plugin.settings.openAPI = value
 						await this.plugin.saveSettings()
 					})
