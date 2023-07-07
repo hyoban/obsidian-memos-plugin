@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-memos-plugin",
-	"version": "1.0.1",
+	"version": "1.0.5",
 	"description": "A plugin for Obsidian that allows you to sync your memos.",
 	"main": "main.js",
 	"scripts": {

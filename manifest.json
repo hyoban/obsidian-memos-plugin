@@ -1,7 +1,7 @@
 {
 	"id": "memos-sync",
 	"name": "Memos Sync",
-	"version": "1.0.1",
+	"version": "1.0.5",
 	"minAppVersion": "0.15.0",
 	"description": "Keep in sync with your memos",
 	"author": "hyoban",
