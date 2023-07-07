@@ -42,7 +42,7 @@ export default class MemosSyncPlugin extends Plugin {
 		}
 
 		try {
-			new Notice("Start syncing memos.")
+			new Notice("Started syncing memos...")
 
 			const res = await fetchMemosWithResource(openAPI)
 
@@ -105,7 +105,7 @@ export default class MemosSyncPlugin extends Plugin {
 				}
 			})
 
-			new Notice(`Sync memos successfully.`)
+			new Notice("Successfully synced memos.")
 
 			this.saveData({
 				...this.settings,
