@@ -1,5 +1,12 @@
-import { fetchMemosWithResource } from "kirika"
-import { App, Notice, Plugin, PluginSettingTab, Setting } from "obsidian"
+import { readMemosFromOpenAPI, getNoteContent } from "kirika"
+import {
+	App,
+	Notice,
+	Plugin,
+	PluginSettingTab,
+	Setting,
+	normalizePath,
+} from "obsidian"
 
 interface MemosSyncPluginSettings {
 	openAPI: string
@@ -44,7 +51,7 @@ export default class MemosSyncPlugin extends Plugin {
 		try {
 			new Notice("Started syncing memos...")
 
-			const res = await fetchMemosWithResource(openAPI)
+			const res = await readMemosFromOpenAPI(openAPI)
 
 			const vault = this.app.vault
 			const adapter = this.app.vault.adapter
@@ -60,19 +67,21 @@ export default class MemosSyncPlugin extends Plugin {
 				await vault.createFolder(`${folderToSync}/resources`)
 			}
 
-			res.memos.forEach((memo) => {
-				const memoPath = `${folderToSync}/memos/${memo.id}.md`
-				const memoContent = memo.content
-				const lastUpdated = memo.updatedTs
+			res.notes.forEach((memo) => {
+				const memoPath = normalizePath(`${folderToSync}/memos/${memo.id}.md`)
+				const memoContent = getNoteContent(memo)
+				const lastUpdated = memo.metadata.updatedAt
 
-				if (lastSyncTime && lastUpdated * 1000 < lastSyncTime) {
+				if (lastSyncTime && lastUpdated && lastUpdated * 1000 < lastSyncTime) {
 					return
 				}
 				adapter.write(memoPath, memoContent)
 			})
 
-			res.resources.forEach(async (resource) => {
-				const resourcePath = `${folderToSync}/resources/${resource.filename}`
+			res.files.forEach(async (resource) => {
+				const resourcePath = normalizePath(
+					`${folderToSync}/resources/${resource.filename}`
+				)
 
 				const isResourceExists = await adapter.exists(resourcePath)
 				if (isResourceExists) {
@@ -84,10 +93,10 @@ export default class MemosSyncPlugin extends Plugin {
 			})
 
 			// delete memos and resources that are not in the API response
-			const memosInAPI = res.memos.map(
+			const memosInAPI = res.notes.map(
 				(memo) => `${folderToSync}/memos/${memo.id}.md`
 			)
-			const resourcesInAPI = res.resources.map(
+			const resourcesInAPI = res.files.map(
 				(resource) => `${folderToSync}/resources/${resource.filename}`
 			)
 
