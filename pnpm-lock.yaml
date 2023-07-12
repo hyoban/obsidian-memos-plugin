@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   kirika:
-    specifier: ^0.5.0
-    version: 0.5.0
+    specifier: ^0.5.2
+    version: 0.5.2
 
 devDependencies:
   '@types/node':
@@ -1145,8 +1145,8 @@ packages:
       commander: 2.20.3
     dev: false
 
-  /kirika@0.5.0:
-    resolution: {integrity: sha512-Gl9qyrU5RoAfXxBlckY7VBnKpiHSc8ZrxrrGuQnu+2iLA1WVbF2Z96KjSZXhlK/sO3VTfte8r39Vx3Hsu/13kA==}
+  /kirika@0.5.2:
+    resolution: {integrity: sha512-R1/G0yQq8Uz5kXDgkdZU9HIS6E2jtomTjYmiSgqHeYyBfFN87CiwjAPc1mhYpr8mbH/zSU522wf7L/xwW8LLug==}
     dependencies:
       '@notionhq/client': 2.2.6
       '@tryfabric/martian': 1.2.4

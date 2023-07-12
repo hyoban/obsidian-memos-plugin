@@ -1,4 +1,8 @@
-import { readMemosFromOpenAPI, getNoteContent } from "kirika"
+import {
+	readMemosFromOpenAPI,
+	getNoteContent,
+	getAttachmentContent,
+} from "kirika"
 import {
 	App,
 	Notice,
@@ -88,7 +92,10 @@ export default class MemosSyncPlugin extends Plugin {
 					return
 				}
 
-				const resourceContent = resource.content
+				const resourceContent = await getAttachmentContent(resource)
+				if (!resourceContent) {
+					return
+				}
 				adapter.writeBinary(resourcePath, resourceContent)
 			})
 
