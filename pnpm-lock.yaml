@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   kirika:
-    specifier: ^0.5.3
-    version: 0.5.3
+    specifier: ^0.5.4
+    version: 0.5.4
 
 devDependencies:
   '@hyoban/prettier-config':
@@ -1668,8 +1668,8 @@ packages:
       commander: 2.20.3
     dev: false
 
-  /kirika@0.5.3:
-    resolution: {integrity: sha512-Ms0kE9t1XGkx1jkxsapRqk3HGveXR02+S2YEWA4RKaBtGnA0jeyZT2pfMqOhJ/BRQFKFsrG95fbiJlRRWCAVTQ==}
+  /kirika@0.5.4:
+    resolution: {integrity: sha512-dTz4HdLq8SnTypBVkguPrtvEx+L0wtrCCi9Vya9HZJMwQ5VWzlNxvt/PmUmsmkJdvTdOo1PQcB2czZ5Gp6CheA==}
     dependencies:
       '@notionhq/client': 2.2.6
       '@tryfabric/martian': 1.2.4

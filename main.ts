@@ -92,6 +92,7 @@ export default class MemosSyncPlugin extends Plugin {
       new Notice("Started syncing memos...")
 
       const res = await readMemosFromOpenAPI(openAPI)
+      const memos = res.notes.filter((i) => !i.metadata.isArchived)
 
       const vault = this.app.vault
       const adapter = this.app.vault.adapter
@@ -107,7 +108,7 @@ export default class MemosSyncPlugin extends Plugin {
         await vault.createFolder(`${folderToSync}/resources`)
       }
 
-      res.notes.forEach((memo) => {
+      memos.forEach((memo) => {
         const memoPath = normalizePath(
           `${folderToSync}/memos/${getFileName(
             memo,
@@ -141,7 +142,7 @@ export default class MemosSyncPlugin extends Plugin {
       })
 
       // delete memos and resources that are not in the API response
-      const memosInAPI = res.notes.map(
+      const memosInAPI = memos.map(
         (memo) =>
           `${folderToSync}/memos/${getFileName(
             memo,
