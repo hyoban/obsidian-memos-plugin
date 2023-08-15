@@ -1,6 +1,7 @@
 import {
   getAttachmentContent,
   getNoteContent,
+  Note,
   readMemosFromOpenAPI,
 } from "kirika"
 import {
@@ -12,15 +13,50 @@ import {
   Setting,
 } from "obsidian"
 
-interface MemosSyncPluginSettings {
+type FileNameFormat = "id" | "created_at" | "updated_at" | "title"
+
+type MemosSyncPluginSettings = {
   openAPI: string
   folderToSync: string
+  fileNameFormat: FileNameFormat
   lastSyncTime?: number
 }
 
 const DEFAULT_SETTINGS: MemosSyncPluginSettings = {
   openAPI: "",
   folderToSync: "Memos Sync",
+  fileNameFormat: "id",
+}
+
+function formatDateToFileFormat(date: Date) {
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const hours = date.getHours()
+  const minutes = date.getMinutes()
+
+  return `${year}-${month}-${day}-${hours}-${minutes}`
+}
+
+function getFileName(memo: Note, format: FileNameFormat) {
+  switch (format) {
+    case "id":
+      return memo.id
+    case "created_at":
+      return formatDateToFileFormat(
+        memo.metadata.createdAt
+          ? new Date(memo.metadata.createdAt)
+          : new Date(),
+      )
+    case "updated_at":
+      return formatDateToFileFormat(
+        memo.metadata.updatedAt
+          ? new Date(memo.metadata.updatedAt)
+          : new Date(),
+      )
+    case "title":
+      return memo.title
+  }
 }
 
 export default class MemosSyncPlugin extends Plugin {
@@ -72,7 +108,12 @@ export default class MemosSyncPlugin extends Plugin {
       }
 
       res.notes.forEach((memo) => {
-        const memoPath = normalizePath(`${folderToSync}/memos/${memo.id}.md`)
+        const memoPath = normalizePath(
+          `${folderToSync}/memos/${getFileName(
+            memo,
+            this.settings.fileNameFormat,
+          )}.md`,
+        )
         const memoContent = getNoteContent(memo)
         const lastUpdated = memo.metadata.updatedAt
 
@@ -101,7 +142,11 @@ export default class MemosSyncPlugin extends Plugin {
 
       // delete memos and resources that are not in the API response
       const memosInAPI = res.notes.map(
-        (memo) => `${folderToSync}/memos/${memo.id}.md`,
+        (memo) =>
+          `${folderToSync}/memos/${getFileName(
+            memo,
+            this.settings.fileNameFormat,
+          )}.md`,
       )
       const resourcesInAPI = res.files.map(
         (resource) => `${folderToSync}/resources/${resource.filename}`,
@@ -178,6 +223,22 @@ class MemosSyncSettingTab extends PluginSettingTab {
               return
             }
             this.plugin.settings.folderToSync = value
+            await this.plugin.saveSettings()
+          }),
+      )
+
+    new Setting(containerEl)
+      .setName("File name format")
+      .setDesc("The format of the file name for memos.")
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("id", "ID")
+          .addOption("created_at", "Created at")
+          .addOption("updated_at", "Updated at")
+          .addOption("title", "Title")
+          .setValue(this.plugin.settings.fileNameFormat)
+          .onChange(async (value) => {
+            this.plugin.settings.fileNameFormat = value as FileNameFormat
             await this.plugin.saveSettings()
           }),
       )

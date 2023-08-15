@@ -14,7 +14,7 @@
   },
   "prettier": "@hyoban/prettier-config",
   "dependencies": {
-    "kirika": "^0.5.2"
+    "kirika": "^0.5.3"
   },
   "devDependencies": {
     "@hyoban/prettier-config": "^4.0.8",
