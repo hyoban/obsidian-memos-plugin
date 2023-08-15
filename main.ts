@@ -1,15 +1,15 @@
 import {
-	readMemosFromOpenAPI,
-	getNoteContent,
 	getAttachmentContent,
+	getNoteContent,
+	readMemosFromOpenAPI,
 } from "kirika"
 import {
 	App,
+	normalizePath,
 	Notice,
 	Plugin,
 	PluginSettingTab,
 	Setting,
-	normalizePath,
 } from "obsidian"
 
 interface MemosSyncPluginSettings {
@@ -65,7 +65,7 @@ export default class MemosSyncPlugin extends Plugin {
 				await vault.createFolder(`${folderToSync}/memos`)
 			}
 			const isResourcesFolderExists = await adapter.exists(
-				`${folderToSync}/resources`
+				`${folderToSync}/resources`,
 			)
 			if (!isResourcesFolderExists) {
 				await vault.createFolder(`${folderToSync}/resources`)
@@ -84,7 +84,7 @@ export default class MemosSyncPlugin extends Plugin {
 
 			res.files.forEach(async (resource) => {
 				const resourcePath = normalizePath(
-					`${folderToSync}/resources/${resource.filename}`
+					`${folderToSync}/resources/${resource.filename}`,
 				)
 
 				const isResourceExists = await adapter.exists(resourcePath)
@@ -101,10 +101,10 @@ export default class MemosSyncPlugin extends Plugin {
 
 			// delete memos and resources that are not in the API response
 			const memosInAPI = res.notes.map(
-				(memo) => `${folderToSync}/memos/${memo.id}.md`
+				(memo) => `${folderToSync}/memos/${memo.id}.md`,
 			)
 			const resourcesInAPI = res.files.map(
-				(resource) => `${folderToSync}/resources/${resource.filename}`
+				(resource) => `${folderToSync}/resources/${resource.filename}`,
 			)
 
 			const memosInVault = await adapter.list(`${folderToSync}/memos`)
@@ -130,7 +130,7 @@ export default class MemosSyncPlugin extends Plugin {
 		} catch (e) {
 			new Notice(
 				"Failed to sync memos. Please check your OpenAPI key and network.",
-				0
+				0,
 			)
 			console.error(e)
 		}
@@ -162,7 +162,7 @@ class MemosSyncSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.openAPI = value
 						await this.plugin.saveSettings()
-					})
+					}),
 			)
 
 		new Setting(containerEl)
@@ -179,7 +179,7 @@ class MemosSyncSettingTab extends PluginSettingTab {
 						}
 						this.plugin.settings.folderToSync = value
 						await this.plugin.saveSettings()
-					})
+					}),
 			)
 	}
 }
