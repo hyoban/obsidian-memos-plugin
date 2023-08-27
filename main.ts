@@ -1,11 +1,11 @@
+import type { Note } from "kirika"
 import {
   getAttachmentContent,
   getNoteContent,
-  Note,
   readMemosFromOpenAPI,
 } from "kirika"
+import type { App } from "obsidian"
 import {
-  App,
   normalizePath,
   Notice,
   Plugin,
