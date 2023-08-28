@@ -17,7 +17,7 @@
     "extends": "@hyoban/eslint-config-ts"
   },
   "dependencies": {
-    "kirika": "^0.5.4"
+    "kirika": "^0.5.5"
   },
   "devDependencies": {
     "@hyoban/eslint-config-ts": "^5.1.0",

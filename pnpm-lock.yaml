@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   kirika:
-    specifier: ^0.5.4
-    version: 0.5.4
+    specifier: ^0.5.5
+    version: 0.5.5
 
 devDependencies:
   '@hyoban/eslint-config-ts':
@@ -902,7 +902,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@types/node-fetch': 2.6.4
-      node-fetch: 2.6.12
+      node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -912,7 +912,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@types/node-fetch': 2.6.4
-      node-fetch: 2.6.12
+      node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -2637,8 +2637,8 @@ packages:
       commander: 2.20.3
     dev: false
 
-  /kirika@0.5.4:
-    resolution: {integrity: sha512-dTz4HdLq8SnTypBVkguPrtvEx+L0wtrCCi9Vya9HZJMwQ5VWzlNxvt/PmUmsmkJdvTdOo1PQcB2czZ5Gp6CheA==}
+  /kirika@0.5.5:
+    resolution: {integrity: sha512-gSO6wBe1MiLqal7T1LsNhD85q7N7XzQqDHYGT8wel0bXvGqasDbVAmryxrF71RQ0ZKteJca8dVKkLhSGszLllg==}
     dependencies:
       '@notionhq/client': 2.2.6
       '@tryfabric/martian': 1.2.4
@@ -2924,18 +2924,6 @@ packages:
     engines: {node: '>=10.5.0'}
     dev: false
 
-  /node-fetch@2.6.12:
-    resolution: {integrity: sha512-C/fGU2E8ToujUivIO0H+tpQ6HWo4eEmchoPIoXtxCrVghxdKq+QOHqEZW7tuP3KlV3bC8FRMO5nMCC7Zm1VP6g==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-    dependencies:
-      whatwg-url: 5.0.0
-    dev: false
-
   /node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
     engines: {node: 4.x || >=6.0.0}
@@ -2946,7 +2934,6 @@ packages:
         optional: true
     dependencies:
       whatwg-url: 5.0.0
-    dev: true
 
   /node-fetch@3.3.1:
     resolution: {integrity: sha512-cRVc/kyto/7E5shrWca1Wsea4y6tL9iYJE5FBCius3JQfb/4P4I295PfhgbJQBLTx6lATE4z+wK0rPM4VS2uow==}

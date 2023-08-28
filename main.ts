@@ -134,6 +134,23 @@ export default class MemosSyncPlugin extends Plugin {
           return
         }
 
+        // check if resource.filename includes "/"
+        if (resource.filename.includes("/")) {
+          const resourcePathSplitted = resource.filename.split("/")
+          // create folders recursively
+          for (let i = 0; i < resourcePathSplitted.length - 1; i++) {
+            const folderPath = normalizePath(
+              `${folderToSync}/resources/${resourcePathSplitted
+                .slice(0, i + 1)
+                .join("/")}`,
+            )
+            const isFolderExists = await adapter.exists(folderPath)
+            if (!isFolderExists) {
+              await vault.createFolder(folderPath)
+            }
+          }
+        }
+
         const resourceContent = await getAttachmentContent(resource)
         if (!resourceContent) {
           return
