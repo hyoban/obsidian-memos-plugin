@@ -1,4 +1,4 @@
-import type { Note } from "kirika"
+import type { Authorization, Note } from "kirika"
 import {
   getAttachmentContent,
   getNoteContent,
@@ -16,14 +16,16 @@ import {
 type FileNameFormat = "id" | "created_at" | "updated_at" | "title"
 
 type MemosSyncPluginSettings = {
-  openAPI: string
+  auth: Authorization
   folderToSync: string
   fileNameFormat: FileNameFormat
   lastSyncTime?: number
 }
 
 const DEFAULT_SETTINGS: MemosSyncPluginSettings = {
-  openAPI: "",
+  auth: {
+    baseUrl: "",
+  },
   folderToSync: "Memos Sync",
   fileNameFormat: "id",
 }
@@ -65,6 +67,7 @@ export default class MemosSyncPlugin extends Plugin {
   async onload() {
     await this.loadSettings()
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.addRibbonIcon("refresh-ccw", "Memos Sync", this.sync.bind(this))
     this.addSettingTab(new MemosSyncSettingTab(this.app, this))
   }
@@ -72,6 +75,7 @@ export default class MemosSyncPlugin extends Plugin {
   onunload() {}
 
   async loadSettings() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
   }
 
@@ -81,17 +85,22 @@ export default class MemosSyncPlugin extends Plugin {
 
   async sync() {
     await this.loadSettings()
-    const { openAPI, folderToSync, lastSyncTime } = this.settings
+    const { auth, folderToSync, lastSyncTime } = this.settings
 
-    if (openAPI === "") {
-      new Notice("Please enter your OpenAPI key.")
+    if (!auth.baseUrl) {
+      new Notice("Please enter the base URL.")
+      return
+    }
+
+    if (!auth.accessToken && !auth.openId) {
+      new Notice("Please enter the access token or open ID.")
       return
     }
 
     try {
       new Notice("Started syncing memos...")
 
-      const res = await readMemosFromOpenAPI(openAPI)
+      const res = await readMemosFromOpenAPI(auth)
       const memos = res.notes.filter((i) => !i.metadata.isArchived)
 
       const vault = this.app.vault
@@ -121,10 +130,12 @@ export default class MemosSyncPlugin extends Plugin {
         if (lastSyncTime && lastUpdated && lastUpdated * 1000 < lastSyncTime) {
           return
         }
-        adapter.write(memoPath, memoContent)
+        adapter.write(memoPath, memoContent).catch((e) => {
+          console.error(e)
+        })
       })
 
-      res.files.forEach(async (resource) => {
+      for (const resource of res.files) {
         const resourcePath = normalizePath(
           `${folderToSync}/resources/${resource.filename}`,
         )
@@ -151,12 +162,14 @@ export default class MemosSyncPlugin extends Plugin {
           }
         }
 
-        const resourceContent = await getAttachmentContent(resource)
+        const resourceContent = await getAttachmentContent(resource, auth)
         if (!resourceContent) {
           return
         }
-        adapter.writeBinary(resourcePath, resourceContent)
-      })
+        adapter.writeBinary(resourcePath, resourceContent).catch((e) => {
+          console.error(e)
+        })
+      }
 
       // delete memos and resources that are not in the API response
       const memosInAPI = memos.map(
@@ -171,28 +184,32 @@ export default class MemosSyncPlugin extends Plugin {
       )
 
       const memosInVault = await adapter.list(`${folderToSync}/memos`)
-      memosInVault.files.forEach(async (memo) => {
+
+      for (const memo of memosInVault.files) {
         if (!memosInAPI.includes(memo)) {
           await adapter.remove(memo)
         }
-      })
+      }
 
       const resourcesInVault = await adapter.list(`${folderToSync}/resources`)
-      resourcesInVault.files.forEach(async (resource) => {
+
+      for (const resource of resourcesInVault.files) {
         if (!resourcesInAPI.includes(resource)) {
           await adapter.remove(resource)
         }
-      })
+      }
 
       new Notice("Successfully synced memos.")
 
       this.saveData({
         ...this.settings,
         lastSyncTime: Date.now(),
+      }).catch((e) => {
+        console.error(e)
       })
     } catch (e) {
       new Notice(
-        "Failed to sync memos. Please check your OpenAPI key and network.",
+        "Failed to sync memos. Please check your authorization settings and network connection.",
         0,
       )
       console.error(e)
@@ -216,14 +233,42 @@ class MemosSyncSettingTab extends PluginSettingTab {
     containerEl.createEl("h2", { text: "Settings for Memos Sync." })
 
     new Setting(containerEl)
-      .setName("OpenAPI")
-      .setDesc("Find your OpenAPI key at your Memos Settings.")
+      .setName("Base URL")
+      .setDesc(
+        "* The host of your memos server.(e.g. https://demo.usememos.com)",
+      )
       .addText((text) =>
         text
-          .setPlaceholder("Enter your OpenAPI key")
-          .setValue(this.plugin.settings.openAPI)
+          .setPlaceholder("Enter your Base URL")
+          .setValue(this.plugin.settings.auth.baseUrl)
           .onChange(async (value) => {
-            this.plugin.settings.openAPI = value
+            this.plugin.settings.auth.baseUrl = value
+            await this.plugin.saveSettings()
+          }),
+      )
+
+    new Setting(containerEl)
+      .setName("Access Token")
+      .setDesc("Set this if your memos version is over 0.15.0.")
+      .addText((text) =>
+        text
+          .setPlaceholder("Enter your access token")
+          .setValue(this.plugin.settings.auth.accessToken || "")
+          .onChange(async (value) => {
+            this.plugin.settings.auth.accessToken = value
+            await this.plugin.saveSettings()
+          }),
+      )
+
+    new Setting(containerEl)
+      .setName("Open ID")
+      .setDesc("Set this if your memos version is under 0.15.0.")
+      .addText((text) =>
+        text
+          .setPlaceholder("Enter your open ID")
+          .setValue(this.plugin.settings.auth.openId || "")
+          .onChange(async (value) => {
+            this.plugin.settings.auth.openId = ""
             await this.plugin.saveSettings()
           }),
       )
