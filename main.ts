@@ -13,12 +13,18 @@ import {
   Setting,
 } from "obsidian"
 
+/**
+ * 每两小时，每小时，每半小时，每15分钟，每5分钟，关闭
+ */
+type Interval = 120 | 60 | 30 | 15 | 5 | 0
+
 type FileNameFormat = "id" | "created_at" | "updated_at" | "title"
 
 type MemosSyncPluginSettings = {
   auth: Authorization
   folderToSync: string
   fileNameFormat: FileNameFormat
+  interval: Interval
   lastSyncTime?: number
 }
 
@@ -28,6 +34,7 @@ const DEFAULT_SETTINGS: MemosSyncPluginSettings = {
   },
   folderToSync: "Memos Sync",
   fileNameFormat: "id",
+  interval: 0,
 }
 
 function formatDateToFileFormat(date: Date) {
@@ -63,9 +70,24 @@ function getFileName(memo: Note, format: FileNameFormat) {
 
 export default class MemosSyncPlugin extends Plugin {
   settings: MemosSyncPluginSettings
+  timer: number | null = null
+
+  async registerSyncInterval() {
+    await this.loadSettings()
+    const { interval } = this.settings
+    if (this.timer) {
+      window.clearInterval(this.timer)
+    }
+    if (interval > 0) {
+      this.timer = this.registerInterval(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        window.setInterval(this.sync.bind(this), interval * 60 * 1000),
+      )
+    }
+  }
 
   async onload() {
-    await this.loadSettings()
+    await this.registerSyncInterval()
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.addRibbonIcon("refresh-ccw", "Memos Sync", this.sync.bind(this))
@@ -303,6 +325,25 @@ class MemosSyncSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.fileNameFormat = value as FileNameFormat
             await this.plugin.saveSettings()
+          }),
+      )
+
+    new Setting(containerEl)
+      .setName("Sync interval")
+      .setDesc("The interval to sync memos.")
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("0", "Close")
+          .addOption("5", "Every 5 minutes")
+          .addOption("15", "Every 15 minutes")
+          .addOption("30", "Every 30 minutes")
+          .addOption("60", "Every 1 hour")
+          .addOption("120", "Every 2 hours")
+          .setValue(String(this.plugin.settings.interval))
+          .onChange(async (value) => {
+            this.plugin.settings.interval = Number(value) as Interval
+            await this.plugin.saveSettings()
+            await this.plugin.registerSyncInterval()
           }),
       )
   }
