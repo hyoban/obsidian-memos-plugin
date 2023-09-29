@@ -6,25 +6,25 @@
   "license": "MIT",
   "author": "",
   "main": "main.js",
+  "type": "module",
   "scripts": {
-    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
     "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "version": "node version-bump.mjs && git add manifest.json versions.json",
     "format": "prettier --write .",
-    "version": "node version-bump.mjs && git add manifest.json versions.json"
+    "lint": "eslint ."
   },
-  "prettier": "@hyoban/prettier-config",
-  "eslintConfig": {
-    "extends": "@hyoban/eslint-config-ts"
-  },
+  "prettier": "@planet-matrix/prettier-config",
   "dependencies": {
     "kirika": "^0.5.7"
   },
   "devDependencies": {
-    "@hyoban/eslint-config-ts": "^6.3.7",
-    "@hyoban/prettier-config": "^6.3.7",
-    "@types/node": "^20.6.2",
+    "@planet-matrix/eslint-config": "^0.1.6",
+    "@planet-matrix/prettier-config": "^0.1.0",
+    "@types/node": "^20.7.1",
     "builtin-modules": "3.3.0",
-    "esbuild": "0.19.3",
+    "esbuild": "0.19.4",
+    "eslint": "^8.50.0",
     "obsidian": "latest",
     "prettier": "^3.0.3",
     "tslib": "2.6.2",
